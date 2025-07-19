@@ -22,6 +22,9 @@ use std::fs; //import the file system module
 // for clustering and such use linfa
 
 // make something about tauri?
+// iota example for structs?
+
+//------------------------------------
 
 //basic function with error handling
 pub fn load(path: &str) -> Result<String> { //public function, takes pointer to a string, returns String content of file or error
@@ -51,14 +54,46 @@ impl Numberinator { //implementation block for Numberinator struct - OOP stuff
 
  //main function, entry point of the program
 fn main() {
-    println!("Hello, world!"); //prints a message to the console
+    println!("Hello, crusteceans 🦀!"); //prints a message to the console
+
+    //***********
+    // Functions
+    //***********
+
+    println!("");
+    println!("###########");
+    println!("FUNCTIONS");
+    println!("");
 
     // Load a file using defined function and handle potential errors
+
+    // match case option - controlled flow, returns content variable or e variable
     println!("Loading file...");
     match load("example.txt") { //attempts to load a file named "example.txt"
         Ok(content) => println!("File content: {}", content), //if successful, prints the content of the file
         Err(e) => println!("Error loading file: {}", e), //
         }
+
+    // handle error using the ? operator - shorthand for simple usecases
+    let content2 = load("example.txt"); //attempts to load the same file again
+    println!("File content2: {:?}", content2); //prints the result, which can be Ok or Err
+
+    // handle error using unwrap_or_else - gives a default value for the target variable
+    let content3 = load("non_existent_file.txt").unwrap_or_else(|err| { //attempts to load a non-existent file and handles the error
+        println!("Error: {}", err); //prints the error message
+        String::from("Default content") //returns a default string if the file cannot be loaded
+    });
+    println!("File content3: {}", content3); //prints the content, which will be the default string in case of an error
+
+
+    //***********
+    // Structs
+    //***********
+
+    println!("");
+    println!("###########");
+    println!("STRUCTS");
+    println!("");
 
     // Create an instance of the defined struct and demonstrate its functionality
     let mut numberinator = Numberinator::new(42, String::from("Initially 42.")); //creates a new instance of Numberinator with number 42 and name "Forty-Two"
@@ -66,10 +101,54 @@ fn main() {
     numberinator.increment(); //calls the increment method to increase the number by 1
     numberinator.display(); //calls the display method again to show the updated number and name
 
+    //***********
+    // Loops
+    //***********
+
+    println!("");
+    println!("###########");
+    println!("LOOPS");
+    println!("");
+
     // Loop over a range
     for i in 0..5 { //loop from 0 to 4
         println!("Loop iteration: {}", i); //prints the current iteration number
         numberinator.increment(); //increments the number in Numberinator
         numberinator.display(); //displays the updated number and name
+    }
+
+    // While loop example
+    let mut count = 0; //initialize a counter variable
+    while count < 5 { //loop while count is less than 5
+        println!("While loop count: {}", count); //prints the current count
+        count += 1;
+    }
+
+    //**************
+    // Flow control
+    //**************
+
+    println!("");
+    println!("###########");
+    println!("FLOW CONTROL");
+    println!("");
+
+    // if else example
+    let value = 10; //initialize a value
+    if value < 5 { //check if value is less than 5
+        println!("Value is less than 5"); //prints if true
+    } else if value < 10 { //check if value is less than 10
+        println!("Value is less than 10 but greater than or equal to 5"); //prints if true
+    } else {
+        println!("Value is 10 or greater"); //prints if none of the above conditions are true
+    }
+
+    // match example
+    let number = 3; //initialize a number
+    match number { //match statement to check the value of number
+        1 => println!("Number is one"), //if number is 1, prints this
+        2 => println!("Number is two"), //if number is 2, prints this
+        3 => println!("Number is three"), //if number is 3, prints this
+        _ => println!("Number is something else"), //if number is anything else, prints this    
     }
 }
