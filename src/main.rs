@@ -172,14 +172,14 @@ fn main() {
     println!("Random number between 0 and 10: {}", num);
 
     // RNG sample from normal distribution
-    let normal = rand_distr::Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
+    let normal = Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
     let mut rng2 = rand::rng();
     let sample = normal.sample(&mut rng2);
     println!("Random sample from N(0,1): {}", sample);
 
     // RNG distribution into an ndarray::Array2
     let mut rng3 = rand::rng();
-    let normal = rand_distr::Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
+    let normal = Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
     let rows = 3;
     let cols = 4;
     // Generate a 2D array of normal-distributed samples
