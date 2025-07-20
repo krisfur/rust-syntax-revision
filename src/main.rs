@@ -5,8 +5,6 @@ use rand::Rng; //cargo add rand
 use rand_distr::{Normal, Distribution}; //cargo add rand_distr
 use ndarray::Array2; //cargo add ndarray
 
-// for arrays use ndarray
-// for random numbers use rand::thread_rng and rand_distr
 // for dates and times use chrono
 
 // for HTTP requests use reqwest
@@ -200,4 +198,15 @@ fn main() {
     println!("");
 
     // add various array manipulation stuff here
+
+    //**************
+    // Parallelism/Threads
+    //**************
+
+    println!("");
+    println!("###########");
+    println!("Parallelism/Threads");
+    println!("");
+
+    //do parallelised computing
 }
