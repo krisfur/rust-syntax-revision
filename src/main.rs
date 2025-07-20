@@ -171,8 +171,8 @@ fn main() {
     let num: u32 = rng.random_range(0..=10); // inclusive range 0 to 10
     println!("Random number between 0 and 10: {}", num);
 
-    // RNG sample from distribution
-    let normal = Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
+    // RNG sample from normal distribution
+    let normal = rand_distr::Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
     let mut rng2 = rand::rng();
     let sample = normal.sample(&mut rng2);
     println!("Random sample from N(0,1): {}", sample);
@@ -188,6 +188,16 @@ fn main() {
         .collect();
 
     let array: Array2<f64> = ndarray::Array2::from_shape_vec((rows, cols), data).unwrap();
-
     println!("Generated normal-distributed array:\n{array}");
+
+    //**************
+    // Arrays
+    //**************
+
+    println!("");
+    println!("###########");
+    println!("Arrays");
+    println!("");
+
+    // add various array manipulation stuff here
 }
