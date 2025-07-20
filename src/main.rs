@@ -1,6 +1,10 @@
 use std::io::Result; //import the ability to handle results
 use std::fs; //import the file system module
 
+use rand::Rng; //cargo add rand
+use rand_distr::{Normal, Distribution}; //cargo add rand_distr
+use ndarray::Array2; //cargo add ndarray
+
 // for arrays use ndarray
 // for random numbers use rand::thread_rng and rand_distr
 // for dates and times use chrono
@@ -151,4 +155,39 @@ fn main() {
         3 => println!("Number is three"), //if number is 3, prints this
         _ => println!("Number is something else"), //if number is anything else, prints this    
     }
+
+
+    //**************
+    // RNG
+    //**************
+
+    println!("");
+    println!("###########");
+    println!("RNG");
+    println!("");
+
+    // Just RNG
+    let mut rng = rand::rng(); //instantiate random numer generator
+    let num: u32 = rng.random_range(0..=10); // inclusive range 0 to 10
+    println!("Random number between 0 and 10: {}", num);
+
+    // RNG sample from distribution
+    let normal = Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
+    let mut rng2 = rand::rng();
+    let sample = normal.sample(&mut rng2);
+    println!("Random sample from N(0,1): {}", sample);
+
+    // RNG distribution into an ndarray::Array2
+    let mut rng3 = rand::rng();
+    let normal = rand_distr::Normal::new(0.0, 1.0).unwrap(); // mean = 0, std dev = 1
+    let rows = 3;
+    let cols = 4;
+    // Generate a 2D array of normal-distributed samples
+    let data: Vec<f64> = (0..rows * cols)
+        .map(|_| normal.sample(&mut rng3))
+        .collect();
+
+    let array: Array2<f64> = ndarray::Array2::from_shape_vec((rows, cols), data).unwrap();
+
+    println!("Generated normal-distributed array:\n{array}");
 }
