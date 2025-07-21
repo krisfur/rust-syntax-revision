@@ -30,7 +30,7 @@ use ndarray::Array2; //cargo add ndarray
 
 //basic function with error handling
 pub fn load(path: &str) -> Result<String> { //public function, takes pointer to a string, returns String content of file or error
-    let content: String = fs::read_to_string(path)?;
+    let content: String = fs::read_to_string(path)?; //? at the end of the line denotes this could be an error to handle
     Ok(content)
 }
 
