@@ -39,6 +39,14 @@ Or compile without running with:
 cargo build
 ```
 
+## Bin files - additional binaries
+
+To run a separate binary called `async-main` from `src/bin/` use:
+
+```bash
+cargo run --bin async-main
+```
+
 ## Add crates to project
 
 To import crates (Rust version of libraries) beyond `std` you need to include them in the `Cargo.toml` file, quickest way is to use cargo:

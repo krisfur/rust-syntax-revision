@@ -8,17 +8,11 @@ use ndarray::Array2; //cargo add ndarray -> 2D arrays, also has 3D etc.
 use rayon::prelude::*; //cargo add rayon -> parallelism
 use rayon::join; //cargo add rayon -> divide and conquer algorithm approach
 use std::thread; //for manual threading of full functions
-use std::time::Duration; //so we can sleep times
-
-// for HTTP requests use reqwest
-
-// for async programming use tokio
+use std::time::Duration; //so we can sleep set amount of time
 
 // for web backend use axum
 
 // for command line arguments use clap
-// for environment variables use std::env
-// for logging use log
 
 // for serialization and deserialization use serde
 // for JSON use serde_json
