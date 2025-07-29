@@ -31,7 +31,7 @@ use ndarray::Array2; //cargo add ndarray
 
 // python bindings with pyo3
 
-// C bindings
+// C bindings - built in
 /*
 extern "C" {
     fn sqrt(x: f64) -> f64;
@@ -41,6 +41,17 @@ extern "C" {
 /*
 cargo install bindgen
 bindgen path/to/header.h -o bindings.rs
+*/
+
+// C++ bindings with cxx
+/*
+#[cxx::bridge]
+mod ffi {
+    extern "C++" {
+        include!("my_header.h");
+        fn cpp_func(x: i32) -> i32;
+    }
+}
 */
 
 //------------------------------------
