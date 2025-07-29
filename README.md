@@ -73,3 +73,7 @@ rand_distr = "0.5.1"
 ```
 
 You can also add crates from git or from path, see more details in the [cargo add](https://doc.rust-lang.org/cargo/commands/cargo-add.html) documentation.
+
+## Quirks/Issues
+
+`Linfa 0.7.1` is broken with `ndarray >= 0.16`, need to downgrade to `ndarray 0.15`.
