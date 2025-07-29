@@ -3,12 +3,15 @@ use std::fs; //import the file system module
 
 use rand::Rng; //cargo add rand -> random numbers
 use rand_distr::{Normal, Distribution}; //cargo add rand_distr -> random distributions
-use ndarray::Array2; //cargo add ndarray -> 2D arrays, also has 3D etc.
+use ndarray::Array2; //cargo add ndarray@0.15 -> 2D arrays, also has 3D etc., linfa breaks with 0.16
 
 use rayon::prelude::*; //cargo add rayon -> parallelism
 use rayon::join; //cargo add rayon -> divide and conquer algorithm approach
 use std::thread; //for manual threading of full functions
 use std::time::Duration; //so we can sleep set amount of time
+
+mod plotting; //import a side file as a module
+use polars::prelude::*; //cargo add polars --feratures lazy,ndarray -> for dataframes
 
 // for web backend use axum
 
@@ -16,10 +19,6 @@ use std::time::Duration; //so we can sleep set amount of time
 
 // for serialization and deserialization use serde
 // for JSON use serde_json
-
-// for dataframes use polars
-// for plotting use plotters
-// for clustering and such use linfa
 
 // make something about tauri?
 // iota example for structs?
@@ -353,4 +352,32 @@ fn main() {
     handle2.join().unwrap();
 
     println!("Both tasks complete.");
+
+    //**************
+    // DataFrames, fitting, plotting
+    //**************
+
+    println!("");
+    println!("###########");
+    println!("DataFrames, fitting, plotting");
+    println!("");
+
+    let x = vec![1.0, 1.1, 1.2, 5.0, 5.1, 5.2, 9.0, 9.1, 9.2];
+    let y = vec![1.0, 0.9, 1.1, 5.0, 5.2, 5.1, 9.0, 9.2, 8.9];
+
+    let df = match df![
+        "x" => &x,
+        "y" => &y
+    ] {
+        Ok(df) => df,
+        Err(e) => {
+            eprintln!("Error creating DataFrame: {e}");
+            return;
+        }
+    };
+
+    if let Err(e) = plotting::plot_dataframe(&df) { //pulling from a side module mod plotting;
+        eprintln!("❌ Plotting failed: {e}");
+    }
+
 }

@@ -41,11 +41,13 @@ cargo build
 
 ## Bin files - additional binaries
 
-To run a separate binary called `async-main` from `src/bin/` use:
+If you want a lot of runnable binaries you put them in `src/bin` and can call them:
 
 ```bash
 cargo run --bin async-main
 ```
+
+but this stops the ability to just use `cargo run` to run `main.rs` and instead need to specify the binary every time, hence I am not doing this here and extra examples that require modifying main are in the `other-examples` folder.
 
 ## Add crates to project
 
