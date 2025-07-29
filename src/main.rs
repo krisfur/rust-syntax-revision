@@ -9,22 +9,39 @@ use ndarray::Array2; //cargo add ndarray
 
 // for HTTP requests use reqwest
 
-// for multithreading use std::thread
+// for multithreading use rayon
 
 // for async programming use tokio
 
-// for command line arguments use std::env or clap
+// for web backend use axum
+
+// for command line arguments use clap
 // for environment variables use std::env
 // for logging use log
 
 // for serialization and deserialization use serde
 // for JSON use serde_json
+
 // for dataframes use polars
 // for plotting use plotters
 // for clustering and such use linfa
 
 // make something about tauri?
 // iota example for structs?
+
+// python bindings with pyo3
+
+// C bindings
+/*
+extern "C" {
+    fn sqrt(x: f64) -> f64;
+}
+*/
+// or bindgen
+/*
+cargo install bindgen
+bindgen path/to/header.h -o bindings.rs
+*/
 
 //------------------------------------
 
