@@ -77,6 +77,7 @@ impl Numberinator { //implementation block for Numberinator struct - OOP stuff
     }
 }
 
+// parallelised function with divide and conquer approach
 fn parallel_min(slice: &[i32]) -> i32 {
     const THRESHOLD: usize = 10;
 
@@ -95,6 +96,7 @@ fn parallel_min(slice: &[i32]) -> i32 {
     }
 }
 
+//normal function to multithread
 fn task(name: &str) {
     let mut rng = rand::rng();
     let sleep_secs = rng.random_range(0.5..=3.0);
@@ -147,7 +149,7 @@ fn main() {
     println!("");
 
     // Create an instance of the defined struct and demonstrate its functionality
-    let mut numberinator = Numberinator::new(42, String::from("Initially 42.")); //creates a new instance of Numberinator with number 42 and name "Forty-Two"
+    let mut numberinator = Numberinator::new(42, String::from("Initially 42.")); //creates a new instance of Numberinator with number 42 and name "Forty-Two" - mutable so we can change its values
     numberinator.display(); //calls the display method to print the number and name
     numberinator.increment(); //calls the increment method to increase the number by 1
     numberinator.display(); //calls the display method again to show the updated number and name
@@ -169,7 +171,7 @@ fn main() {
     }
 
     // While loop example
-    let mut count = 0; //initialize a counter variable
+    let mut count = 0; //initialize a counter variable - mutable!
     while count < 5 { //loop while count is less than 5
         println!("While loop count: {}", count); //prints the current count
         count += 1;

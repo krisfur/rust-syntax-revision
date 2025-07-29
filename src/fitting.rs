@@ -1,5 +1,5 @@
 use linfa::prelude::*;
-use linfa_linear::LinearRegression;
+use linfa_linear::LinearRegression; //cargo add linfa-linear -> for linear fits
 use ndarray::{Array1, Array2};
 use polars::prelude::*;
 use plotters::prelude::*;

@@ -57,11 +57,17 @@ To import crates (Rust version of libraries) beyond `std` you need to include th
 cargo add library-name@version
 ```
 
+if you need specific features that do not come as default use `--features` flag like:
+
+```bash
+cargo add library-name@version --features feature1,feature2
+```
+
 But you can also manually add them in Cargo.toml:
 
 ```toml
 [dependencies]
-ndarray = "0.16.1"
+ndarray = "0.15"
 rand = "0.9.1"
 rand_distr = "0.5.1"
 ```

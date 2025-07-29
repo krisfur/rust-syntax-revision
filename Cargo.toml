@@ -1,7 +1,7 @@
 [package]
 name = "rust-syntax-revision"
-version = "0.1.0"
-edition = "2024"
+version = "0.1.2"
+edition = "2025"
 
 [dependencies]
 futures = "0.3.31"
