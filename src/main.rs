@@ -1,15 +1,16 @@
 use std::io::Result; //import the ability to handle results
 use std::fs; //import the file system module
 
-use rand::Rng; //cargo add rand
-use rand_distr::{Normal, Distribution}; //cargo add rand_distr
-use ndarray::Array2; //cargo add ndarray
+use rand::Rng; //cargo add rand -> random numbers
+use rand_distr::{Normal, Distribution}; //cargo add rand_distr -> random distributions
+use ndarray::Array2; //cargo add ndarray -> 2D arrays, also has 3D etc.
 
-// for dates and times use chrono
+use rayon::prelude::*; //cargo add rayon -> parallelism
+use rayon::join; //cargo add rayon -> divide and conquer algorithm approach
+use std::thread; //for manual threading of full functions
+use std::time::Duration; //so we can sleep times
 
 // for HTTP requests use reqwest
-
-// for multithreading use rayon
 
 // for async programming use tokio
 
@@ -80,6 +81,32 @@ impl Numberinator { //implementation block for Numberinator struct - OOP stuff
     pub fn increment(&mut self) { //method to increment the number - mutable reference to self since it modifies the value
         self.number += 1; //increments the number by 1
     }
+}
+
+fn parallel_min(slice: &[i32]) -> i32 {
+    const THRESHOLD: usize = 10;
+
+    if slice.len() <= THRESHOLD { //if small enough problem: do serially
+        *slice.iter().min().unwrap()
+    } else {
+        let mid = slice.len() / 2; //split in half
+        let (left, right) = slice.split_at(mid);
+
+        let (min_left, min_right) = join( //run on parts of the problem in parallel and join results
+            || parallel_min(left),
+            || parallel_min(right),
+        );
+
+        min_left.min(min_right)
+    }
+}
+
+fn task(name: &str) {
+    let mut rng = rand::rng();
+    let sleep_secs = rng.random_range(0.5..=3.0);
+    println!("{name} sleeping for {sleep_secs:.2} seconds...");
+    thread::sleep(Duration::from_secs_f64(sleep_secs));
+    println!("{name} finished!");
 }
 
  //main function, entry point of the program
@@ -225,8 +252,73 @@ fn main() {
     println!("Arrays");
     println!("");
 
-    // add various array manipulation stuff here
+    // basic array - note the predefined length!
+    let mut arr: [i32; 5] = [1, 2, 3, 4, 5];
 
+    // access data
+    println!("First: {}", arr[0]);
+
+    // modify - needs mut!
+    arr[2] = 99;
+
+    // iterate
+    for val in arr.iter() {
+        println!("{}", val);
+    }
+
+    // expressive way to get sum
+    let arr: [f64; 3] = [1.1, 2.2, 3.3];
+    let sum: f64 = arr.iter().sum();
+    println!("Sum = {}", sum);
+
+    // strings
+    let greetings: [&str; 3] = ["hello", "hi", "hola"];
+    for s in &greetings {
+        println!("Greeting: {}", s);
+    }
+
+    // 2d array - matrix
+    let mut a = Array2::<f64>::zeros((3, 3));
+
+    // Set diagonal values to 1
+    for i in 0..3 {
+        a[(i, i)] = 1.0;
+    }
+
+    println!("Identity matrix:\n{}", a);
+
+    // Vector - array of mutable length
+
+    let mut v: Vec<i32> = Vec::new(); // empty vector of i32
+
+    // Add values
+    v.push(10);
+    v.push(20);
+    v.push(30);
+    println!("After pushes: {:?}", v);
+
+    // Remove last value
+    if let Some(val) = v.pop() {
+        println!("Popped value: {}", val);
+    }
+
+    println!("After pop: {:?}", v);
+
+    for val in &v { //take reverence when iterating over a vector!
+        println!("Value: {}", val);
+    }
+
+    // vector with strings
+    let mut names: Vec<String> = vec![];
+
+    names.push("Alice".to_string());
+    names.push("Bob".into());
+
+    println!("{:?}", names);
+
+    names.pop();
+    println!("{:?}", names);
+    
     //**************
     // Parallelism/Threads
     //**************
@@ -236,5 +328,35 @@ fn main() {
     println!("Parallelism/Threads");
     println!("");
 
-    //do parallelised computing
+    // Rayon - for applying on collections, slices, ranges, vectors, etc.
+    let data = vec![1, 2, 3, 4, 5];
+    println!("Data: {:?}",&data);
+    println!("Performing x * x in parallel.");
+    let results: Vec<_> = data.par_iter().map(|x| x * x).collect();
+    println!("Results: {:?}",&results);
+
+    let mut v = vec![5, 3, 8, 1, 2];
+    println!("Vector to sort in parallel: {:?}",&v);
+    v.par_sort_unstable(); // uses multiple threads
+    println!("Sorted: {:?}", v);
+
+    let sum: i32 = (1..=100).into_par_iter().sum(); //this can thread panic if you exceed max stack size!
+    println!("Parallel sum: {}", sum);
+
+    let max = (1..=100).into_par_iter().max().unwrap();
+    println!("Parallel max: {}", max);
+
+    let data: Vec<i32> = (1..=100).rev().collect();
+    println!("Vector to find the minimum of in parallel: {:?}",&data);
+    let min_value = parallel_min(&data); //splits too large a task into subtasks that run in parallel, and joins the results
+    println!("Min value: {}", min_value);
+
+    // std::thread - for manually parallelising running functions 
+    let handle1 = thread::spawn(|| task("Task 1"));
+    let handle2 = thread::spawn(|| task("Task 2"));
+
+    handle1.join().unwrap();
+    handle2.join().unwrap();
+
+    println!("Both tasks complete.");
 }
