@@ -109,6 +109,21 @@ fn task(name: &str) {
 fn main() {
     println!("Hello, crusteceans 🦀!"); //prints a message to the console
 
+    // variables, casting
+
+    let mut x: i32 = 123; //define: mutable int32, can also infer like let x = 3, but then you miss some specific expressive functions like .abs()
+    x = x * -1; //swap sign
+    println!("{}",x);
+    let sign = if x < 0 { -1 } else { 1 }; //find sign
+    let xstr = x.abs().to_string(); //convert to string ignoring the sign
+    let srev = xstr.chars().rev().collect::<String>(); //reverse the string
+    println!("{}",srev);
+    let irev = match srev.parse::<i32>() { //save new variable irev with either the string parsed back to int or 0 if it fails
+            Ok(num) => num * sign, //reintroduce the sign
+            Err(_) => 0,
+        };
+    println!("{}",irev);
+
     //***********
     // Functions
     //***********
