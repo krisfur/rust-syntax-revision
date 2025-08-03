@@ -14,6 +14,8 @@ mod plotting; //import a side file as a module
 mod fitting;
 use polars::prelude::*; //cargo add polars --feratures lazy,ndarray -> for dataframes
 
+// for GUI apps use egui
+
 // for web backend use axum
 
 // for command line arguments use clap
