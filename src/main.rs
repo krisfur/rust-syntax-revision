@@ -126,6 +126,16 @@ fn main() {
         };
     println!("{}",irev);
 
+    // str and String
+
+    let xstr = "str slice"; //str, stored on a stack, immutable fixed size
+    let mut x_string = String::from("proper String"); //String, stored on the heap, can be mutable and expandable (vector like in C++) 
+
+    //xstr = xstr + "a"; -> this is not valid! even if you make xstr mut it will tell you to use String instead
+    println!("{}",xstr);
+    x_string = x_string + " oh yeah"; //this works perfectly fine!
+    println!("{}",x_string);
+
     //***********
     // Functions
     //***********
