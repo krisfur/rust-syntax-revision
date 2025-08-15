@@ -14,6 +14,9 @@ mod plotting; //import a side file as a module
 mod fitting;
 use polars::prelude::*; //cargo add polars --feratures lazy,ndarray -> for dataframes
 
+// for deep learning use burn -  tt can use tch (LibTorch), candle (a minimalist ML framework), ndarray (CPU), or wgpu (GPU via WebGPU) as its backend
+// for just running inference with ONXX models use ort
+
 // for GUI apps use egui
 
 // for web backend use axum
