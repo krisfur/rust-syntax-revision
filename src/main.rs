@@ -463,9 +463,12 @@ fn main() {
     // Structs -> AND
     // Enums -> OR
 
+    // using options in an enum called Event:
     let key_press_event = Event::Press('q');
     let click_event = Event::Click { x: 100, y: 250 };
 
     println!("Key press event: {:?}", key_press_event);
     println!("Click event: {:?}", click_event);
+
+    // you can even have an enum of structs etc.
 }
