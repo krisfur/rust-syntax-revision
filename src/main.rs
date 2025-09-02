@@ -14,6 +14,11 @@ mod fitting;
 mod plotting; //import a side file as a module
 use polars::prelude::*; //cargo add polars --feratures lazy,ndarray -> for dataframes
 
+// for deep learning use burn -  tt can use tch (LibTorch), candle (a minimalist ML framework), ndarray (CPU), or wgpu (GPU via WebGPU) as its backend
+// for just running inference with ONXX models use ort
+
+// for GUI apps use egui
+
 // for web backend use axum
 
 // for command line arguments use clap
@@ -138,6 +143,16 @@ fn main() {
         Err(_) => 0,
     };
     println!("{}", irev);
+
+    // str and String
+
+    let xstr = "str slice"; //str, stored on a stack, immutable fixed size
+    let mut x_string = String::from("proper String"); //String, stored on the heap, can be mutable and expandable (vector like in C++) 
+
+    //xstr = xstr + "a"; -> this is not valid! even if you make xstr mut it will tell you to use String instead
+    println!("{}",xstr);
+    x_string = x_string + " oh yeah"; //this works perfectly fine!
+    println!("{}",x_string);
 
     //***********
     // Functions
