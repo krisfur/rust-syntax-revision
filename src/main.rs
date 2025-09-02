@@ -1,17 +1,17 @@
-use std::io::Result; //import the ability to handle results
-use std::fs; //import the file system module
+use std::fs;
+use std::io::Result; //import the ability to handle results //import the file system module
 
+use ndarray::Array2;
 use rand::Rng; //cargo add rand -> random numbers
-use rand_distr::{Normal, Distribution}; //cargo add rand_distr -> random distributions
-use ndarray::Array2; //cargo add ndarray@0.15 -> 2D arrays, also has 3D etc., linfa breaks with 0.16
+use rand_distr::{Distribution, Normal}; //cargo add rand_distr -> random distributions //cargo add ndarray@0.15 -> 2D arrays, also has 3D etc., linfa breaks with 0.16
 
-use rayon::prelude::*; //cargo add rayon -> parallelism
 use rayon::join; //cargo add rayon -> divide and conquer algorithm approach
+use rayon::prelude::*; //cargo add rayon -> parallelism
 use std::thread; //for manual threading of full functions
 use std::time::Duration; //so we can sleep set amount of time
 
-mod plotting; //import a side file as a module
 mod fitting;
+mod plotting; //import a side file as a module
 use polars::prelude::*; //cargo add polars --feratures lazy,ndarray -> for dataframes
 
 // for web backend use axum
@@ -52,27 +52,39 @@ mod ffi {
 //------------------------------------
 
 //basic function with error handling
-pub fn load(path: &str) -> Result<String> { //public function, takes pointer to a string, returns String content of file or error
+pub fn load(path: &str) -> Result<String> {
+    //public function, takes pointer to a string, returns String content of file or error
     let content: String = fs::read_to_string(path)?; //? at the end of the line denotes this could be an error to handle
     Ok(content)
 }
 
 //basic struct - Rust custom data type that can hold multiple values
-pub struct Numberinator{
-    pub number: i32, //public field to hold a number
+pub struct Numberinator {
+    pub number: i32,  //public field to hold a number
     pub name: String, //public field to hold a name
 }
 
-impl Numberinator { //implementation block for Numberinator struct - OOP stuff
-    pub fn new(number: i32, name: String) -> Self { //constructor function to create a new instance of Numberinator
+#[derive(Debug)]
+enum Event {
+    Load,                     // Variant with no associated data
+    Press(char),              // Variant with a single value
+    Click { x: i32, y: i32 }, // Variant with named data (like a mini-struct)
+}
+
+impl Numberinator {
+    //implementation block for Numberinator struct - OOP stuff
+    pub fn new(number: i32, name: String) -> Self {
+        //constructor function to create a new instance of Numberinator
         Numberinator { number, name } //returns a new instance with the provided number and name
     }
 
-    pub fn display(&self) { //method to display the number and name
+    pub fn display(&self) {
+        //method to display the number and name
         println!("Number: {}, Name: {}", self.number, self.name); //prints the number and name to the console
     }
 
-    pub fn increment(&mut self) { //method to increment the number - mutable reference to self since it modifies the value
+    pub fn increment(&mut self) {
+        //method to increment the number - mutable reference to self since it modifies the value
         self.number += 1; //increments the number by 1
     }
 }
@@ -81,13 +93,15 @@ impl Numberinator { //implementation block for Numberinator struct - OOP stuff
 fn parallel_min(slice: &[i32]) -> i32 {
     const THRESHOLD: usize = 10;
 
-    if slice.len() <= THRESHOLD { //if small enough problem: do serially
+    if slice.len() <= THRESHOLD {
+        //if small enough problem: do serially
         *slice.iter().min().unwrap()
     } else {
         let mid = slice.len() / 2; //split in half
         let (left, right) = slice.split_at(mid);
 
-        let (min_left, min_right) = join( //run on parts of the problem in parallel and join results
+        let (min_left, min_right) = join(
+            //run on parts of the problem in parallel and join results
             || parallel_min(left),
             || parallel_min(right),
         );
@@ -105,7 +119,7 @@ fn task(name: &str) {
     println!("{name} finished!");
 }
 
- //main function, entry point of the program
+//main function, entry point of the program
 fn main() {
     println!("Hello, crusteceans 🦀!"); //prints a message to the console
 
@@ -113,16 +127,17 @@ fn main() {
 
     let mut x: i32 = 123; //define: mutable int32, can also infer like let x = 3, but then you miss some specific expressive functions like .abs()
     x = x * -1; //swap sign
-    println!("{}",x);
+    println!("{}", x);
     let sign = if x < 0 { -1 } else { 1 }; //find sign
     let xstr = x.abs().to_string(); //convert to string ignoring the sign
     let srev = xstr.chars().rev().collect::<String>(); //reverse the string
-    println!("{}",srev);
-    let irev = match srev.parse::<i32>() { //save new variable irev with either the string parsed back to int or 0 if it fails
-            Ok(num) => num * sign, //reintroduce the sign
-            Err(_) => 0,
-        };
-    println!("{}",irev);
+    println!("{}", srev);
+    let irev = match srev.parse::<i32>() {
+        //save new variable irev with either the string parsed back to int or 0 if it fails
+        Ok(num) => num * sign, //reintroduce the sign
+        Err(_) => 0,
+    };
+    println!("{}", irev);
 
     //***********
     // Functions
@@ -137,22 +152,23 @@ fn main() {
 
     // match case option - controlled flow, returns content variable or e variable
     println!("Loading file...");
-    match load("example.txt") { //attempts to load a file named "example.txt"
+    match load("example.txt") {
+        //attempts to load a file named "example.txt"
         Ok(content) => println!("File content: {}", content), //if successful, prints the content of the file
-        Err(e) => println!("Error loading file: {}", e), //
-        }
+        Err(e) => println!("Error loading file: {}", e),      //
+    }
 
     // handle error using the ? operator - shorthand for simple usecases
     let content2 = load("example.txt"); //attempts to load the same file again
     println!("File content2: {:?}", content2); //prints the result, which can be Ok or Err
 
     // handle error using unwrap_or_else - gives a default value for the target variable
-    let content3 = load("non_existent_file.txt").unwrap_or_else(|err| { //attempts to load a non-existent file and handles the error
+    let content3 = load("non_existent_file.txt").unwrap_or_else(|err| {
+        //attempts to load a non-existent file and handles the error
         println!("Error: {}", err); //prints the error message
         String::from("Default content") //returns a default string if the file cannot be loaded
     });
     println!("File content3: {}", content3); //prints the content, which will be the default string in case of an error
-
 
     //***********
     // Structs
@@ -179,7 +195,8 @@ fn main() {
     println!("");
 
     // Loop over a range
-    for i in 0..5 { //loop from 0 to 4
+    for i in 0..5 {
+        //loop from 0 to 4
         println!("Loop iteration: {}", i); //prints the current iteration number
         numberinator.increment(); //increments the number in Numberinator
         numberinator.display(); //displays the updated number and name
@@ -187,7 +204,8 @@ fn main() {
 
     // While loop example
     let mut count = 0; //initialize a counter variable - mutable!
-    while count < 5 { //loop while count is less than 5
+    while count < 5 {
+        //loop while count is less than 5
         println!("While loop count: {}", count); //prints the current count
         count += 1;
     }
@@ -203,9 +221,11 @@ fn main() {
 
     // if else example
     let value = 10; //initialize a value
-    if value < 5 { //check if value is less than 5
+    if value < 5 {
+        //check if value is less than 5
         println!("Value is less than 5"); //prints if true
-    } else if value < 10 { //check if value is less than 10
+    } else if value < 10 {
+        //check if value is less than 10
         println!("Value is less than 10 but greater than or equal to 5"); //prints if true
     } else {
         println!("Value is 10 or greater"); //prints if none of the above conditions are true
@@ -213,13 +233,13 @@ fn main() {
 
     // match example
     let number = 3; //initialize a number
-    match number { //match statement to check the value of number
+    match number {
+        //match statement to check the value of number
         1 => println!("Number is one"), //if number is 1, prints this
         2 => println!("Number is two"), //if number is 2, prints this
         3 => println!("Number is three"), //if number is 3, prints this
-        _ => println!("Number is something else"), //if number is anything else, prints this    
+        _ => println!("Number is something else"), //if number is anything else, prints this
     }
-
 
     //**************
     // RNG
@@ -247,9 +267,7 @@ fn main() {
     let rows = 3;
     let cols = 4;
     // Generate a 2D array of normal-distributed samples
-    let data: Vec<f64> = (0..rows * cols)
-        .map(|_| normal.sample(&mut rng3))
-        .collect();
+    let data: Vec<f64> = (0..rows * cols).map(|_| normal.sample(&mut rng3)).collect();
 
     let array: Array2<f64> = ndarray::Array2::from_shape_vec((rows, cols), data).unwrap();
     println!("Generated normal-distributed array:\n{array}");
@@ -315,7 +333,8 @@ fn main() {
 
     println!("After pop: {:?}", v);
 
-    for val in &v { //take reverence when iterating over a vector!
+    for val in &v {
+        //take reverence when iterating over a vector!
         println!("Value: {}", val);
     }
 
@@ -329,7 +348,7 @@ fn main() {
 
     names.pop();
     println!("{:?}", names);
-    
+
     //**************
     // Parallelism/Threads
     //**************
@@ -341,13 +360,13 @@ fn main() {
 
     // Rayon - for applying on collections, slices, ranges, vectors, etc.
     let data = vec![1, 2, 3, 4, 5];
-    println!("Data: {:?}",&data);
+    println!("Data: {:?}", &data);
     println!("Performing x * x in parallel.");
     let results: Vec<_> = data.par_iter().map(|x| x * x).collect();
-    println!("Results: {:?}",&results);
+    println!("Results: {:?}", &results);
 
     let mut v = vec![5, 3, 8, 1, 2];
-    println!("Vector to sort in parallel: {:?}",&v);
+    println!("Vector to sort in parallel: {:?}", &v);
     v.par_sort_unstable(); // uses multiple threads
     println!("Sorted: {:?}", v);
 
@@ -358,11 +377,11 @@ fn main() {
     println!("Parallel max: {}", max);
 
     let data: Vec<i32> = (1..=100).rev().collect();
-    println!("Vector to find the minimum of in parallel: {:?}",&data);
+    println!("Vector to find the minimum of in parallel: {:?}", &data);
     let min_value = parallel_min(&data); //splits too large a task into subtasks that run in parallel, and joins the results
     println!("Min value: {}", min_value);
 
-    // std::thread - for manually parallelising running functions 
+    // std::thread - for manually parallelising running functions
     let handle1 = thread::spawn(|| task("Task 1"));
     let handle2 = thread::spawn(|| task("Task 2"));
 
@@ -395,8 +414,8 @@ fn main() {
         }
     };
 
-
-    if let Err(e) = plotting::plot_dataframe(&df) { //pulling from a side module mod plotting;
+    if let Err(e) = plotting::plot_dataframe(&df) {
+        //pulling from a side module mod plotting;
         eprintln!("❌ Plotting failed: {e}");
     }
 
@@ -407,9 +426,30 @@ fn main() {
     let df = df![
         "x" => &x,
         "y" => &y
-    ].unwrap();
+    ]
+    .unwrap();
 
     if let Err(e) = fitting::fit_and_plot(&df) {
         eprintln!("❌ Fitting failed: {e}");
     }
+
+    //*******************
+    // Enums vs Structs
+    //*******************
+
+    println!("");
+    println!("###########");
+    println!("Enums vs Structs");
+    println!("");
+
+    // In Rust structs are used to make custom data types with named fields.
+    // Enums, on the other hand, are used to represent a fixed set of possible values.
+    // Structs -> AND
+    // Enums -> OR
+
+    let key_press_event = Event::Press('q');
+    let click_event = Event::Click { x: 100, y: 250 };
+
+    println!("Key press event: {:?}", key_press_event);
+    println!("Click event: {:?}", click_event);
 }
