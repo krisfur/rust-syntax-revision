@@ -69,9 +69,10 @@ pub struct Numberinator {
     pub name: String, //public field to hold a name
 }
 
-#[derive(Debug)]
+#[derive(Debug)] //this adds printing functionality
+#[allow(dead_code)] //this stops warnings if not all options are used
 enum Event {
-    Load,                     // Variant with no associated data
+    Load,                     //simply named event
     Press(char),              // Variant with a single value
     Click { x: i32, y: i32 }, // Variant with named data (like a mini-struct)
 }
@@ -147,12 +148,12 @@ fn main() {
     // str and String
 
     let xstr = "str slice"; //str, stored on a stack, immutable fixed size
-    let mut x_string = String::from("proper String"); //String, stored on the heap, can be mutable and expandable (vector like in C++) 
+    let mut x_string = String::from("proper String"); //String, stored on the heap, can be mutable and expandable (vector like in C++)
 
     //xstr = xstr + "a"; -> this is not valid! even if you make xstr mut it will tell you to use String instead
-    println!("{}",xstr);
+    println!("{}", xstr);
     x_string = x_string + " oh yeah"; //this works perfectly fine!
-    println!("{}",x_string);
+    println!("{}", x_string);
 
     //***********
     // Functions
