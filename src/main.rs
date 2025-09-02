@@ -15,46 +15,6 @@ mod fitting;
 mod plotting; //import a side file as a module
 use polars::prelude::*; //cargo add polars --feratures lazy,ndarray -> for dataframes
 
-// for deep learning use burn -  tt can use tch (LibTorch), candle (a minimalist ML framework), ndarray (CPU), or wgpu (GPU via WebGPU) as its backend
-// for just running inference with ONXX models use ort
-
-// for GUI apps use egui
-
-// for web backend use axum
-
-// for command line arguments use clap
-
-// for serialization and deserialization use serde
-// for JSON use serde_json
-
-// make something about tauri?
-// iota example for structs?
-
-// python bindings with pyo3
-
-// C bindings - built in
-/*
-extern "C" {
-    fn sqrt(x: f64) -> f64;
-}
-*/
-// or bindgen
-/*
-cargo install bindgen
-bindgen path/to/header.h -o bindings.rs
-*/
-
-// C++ bindings with cxx
-/*
-#[cxx::bridge]
-mod ffi {
-    extern "C++" {
-        include!("my_header.h");
-        fn cpp_func(x: i32) -> i32;
-    }
-}
-*/
-
 //------------------------------------
 
 //main function, entry point of the program
