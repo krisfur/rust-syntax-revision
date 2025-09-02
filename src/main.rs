@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::Result; //import the ability to handle results //import the file system module
+use std::rc::Rc; // to use reference counting
 
 use ndarray::Array2;
 use rand::Rng; //cargo add rand -> random numbers
@@ -56,75 +57,6 @@ mod ffi {
 
 //------------------------------------
 
-//basic function with error handling
-pub fn load(path: &str) -> Result<String> {
-    //public function, takes pointer to a string, returns String content of file or error
-    let content: String = fs::read_to_string(path)?; //? at the end of the line denotes this could be an error to handle
-    Ok(content)
-}
-
-//basic struct - Rust custom data type that can hold multiple values
-pub struct Numberinator {
-    pub number: i32,  //public field to hold a number
-    pub name: String, //public field to hold a name
-}
-
-#[derive(Debug)] //this adds printing functionality
-#[allow(dead_code)] //this stops warnings if not all options are used
-enum Event {
-    Load,                     //simply named event
-    Press(char),              // Variant with a single value
-    Click { x: i32, y: i32 }, // Variant with named data (like a mini-struct)
-}
-
-impl Numberinator {
-    //implementation block for Numberinator struct - OOP stuff
-    pub fn new(number: i32, name: String) -> Self {
-        //constructor function to create a new instance of Numberinator
-        Numberinator { number, name } //returns a new instance with the provided number and name
-    }
-
-    pub fn display(&self) {
-        //method to display the number and name
-        println!("Number: {}, Name: {}", self.number, self.name); //prints the number and name to the console
-    }
-
-    pub fn increment(&mut self) {
-        //method to increment the number - mutable reference to self since it modifies the value
-        self.number += 1; //increments the number by 1
-    }
-}
-
-// parallelised function with divide and conquer approach
-fn parallel_min(slice: &[i32]) -> i32 {
-    const THRESHOLD: usize = 10;
-
-    if slice.len() <= THRESHOLD {
-        //if small enough problem: do serially
-        *slice.iter().min().unwrap()
-    } else {
-        let mid = slice.len() / 2; //split in half
-        let (left, right) = slice.split_at(mid);
-
-        let (min_left, min_right) = join(
-            //run on parts of the problem in parallel and join results
-            || parallel_min(left),
-            || parallel_min(right),
-        );
-
-        min_left.min(min_right)
-    }
-}
-
-//normal function to multithread
-fn task(name: &str) {
-    let mut rng = rand::rng();
-    let sleep_secs = rng.random_range(0.5..=3.0);
-    println!("{name} sleeping for {sleep_secs:.2} seconds...");
-    thread::sleep(Duration::from_secs_f64(sleep_secs));
-    println!("{name} finished!");
-}
-
 //main function, entry point of the program
 fn main() {
     println!("Hello, crusteceans 🦀!"); //prints a message to the console
@@ -133,6 +65,7 @@ fn main() {
 
     let mut x: i32 = 123; //define: mutable int32, can also infer like let x = 3, but then you miss some specific expressive functions like .abs()
     x = x * -1; //swap sign
+    let _unused_variable = 5; // _ means the variable doesn't need to be used so compiler won't warn you
     println!("{}", x);
     let sign = if x < 0 { -1 } else { 1 }; //find sign
     let xstr = x.abs().to_string(); //convert to string ignoring the sign
@@ -168,6 +101,13 @@ fn main() {
 
     // match case option - controlled flow, returns content variable or e variable
     println!("Loading file...");
+    //basic function with error handling
+    pub fn load(path: &str) -> Result<String> {
+        //public function, takes pointer to a string, returns String content of file or error
+        let content: String = fs::read_to_string(path)?; //? at the end of the line denotes this could be an error to handle
+        Ok(content)
+    }
+
     match load("example.txt") {
         //attempts to load a file named "example.txt"
         Ok(content) => println!("File content: {}", content), //if successful, prints the content of the file
@@ -194,6 +134,30 @@ fn main() {
     println!("###########");
     println!("STRUCTS");
     println!("");
+
+    //basic struct - Rust custom data type that can hold multiple values
+    pub struct Numberinator {
+        pub number: i32,  //public field to hold a number
+        pub name: String, //public field to hold a name
+    }
+
+    impl Numberinator {
+        //implementation block for Numberinator struct - OOP stuff
+        pub fn new(number: i32, name: String) -> Self {
+            //constructor function to create a new instance of Numberinator
+            Numberinator { number, name } //returns a new instance with the provided number and name
+        }
+
+        pub fn display(&self) {
+            //method to display the number and name
+            println!("Number: {}, Name: {}", self.number, self.name); //prints the number and name to the console
+        }
+
+        pub fn increment(&mut self) {
+            //method to increment the number - mutable reference to self since it modifies the value
+            self.number += 1; //increments the number by 1
+        }
+    }
 
     // Create an instance of the defined struct and demonstrate its functionality
     let mut numberinator = Numberinator::new(42, String::from("Initially 42.")); //creates a new instance of Numberinator with number 42 and name "Forty-Two" - mutable so we can change its values
@@ -394,10 +358,42 @@ fn main() {
 
     let data: Vec<i32> = (1..=100).rev().collect();
     println!("Vector to find the minimum of in parallel: {:?}", &data);
+
+    // parallelised function with divide and conquer approach
+    fn parallel_min(slice: &[i32]) -> i32 {
+        const THRESHOLD: usize = 10;
+
+        if slice.len() <= THRESHOLD {
+            //if small enough problem: do serially
+            *slice.iter().min().unwrap()
+        } else {
+            let mid = slice.len() / 2; //split in half
+            let (left, right) = slice.split_at(mid);
+
+            let (min_left, min_right) = join(
+                //run on parts of the problem in parallel and join results
+                || parallel_min(left),
+                || parallel_min(right),
+            );
+
+            min_left.min(min_right)
+        }
+    }
+
     let min_value = parallel_min(&data); //splits too large a task into subtasks that run in parallel, and joins the results
     println!("Min value: {}", min_value);
 
     // std::thread - for manually parallelising running functions
+
+    //normal function to multithread
+    fn task(name: &str) {
+        let mut rng = rand::rng();
+        let sleep_secs = rng.random_range(0.5..=3.0);
+        println!("{name} sleeping for {sleep_secs:.2} seconds...");
+        thread::sleep(Duration::from_secs_f64(sleep_secs));
+        println!("{name} finished!");
+    }
+
     let handle1 = thread::spawn(|| task("Task 1"));
     let handle2 = thread::spawn(|| task("Task 2"));
 
@@ -463,6 +459,14 @@ fn main() {
     // Structs -> AND
     // Enums -> OR
 
+    #[derive(Debug)] //this adds printing functionality
+    #[allow(dead_code)] //this stops warnings if not all options are used
+    enum Event {
+        Load,                     //simply named event
+        Press(char),              // Variant with a single value
+        Click { x: i32, y: i32 }, // Variant with named data (like a mini-struct)
+    }
+
     // using options in an enum called Event:
     let key_press_event = Event::Press('q');
     let click_event = Event::Click { x: 100, y: 250 };
@@ -471,4 +475,127 @@ fn main() {
     println!("Click event: {:?}", click_event);
 
     // you can even have an enum of structs etc.
+
+    //*************************
+    // Lifetimes, Box, RC, Arc
+    //*************************
+
+    println!("");
+    println!("###########");
+    println!("Lifetimes, Box, RC, Arc");
+    println!("");
+
+    // Managing how long data lives in Rust is done in a few ways:
+    // - Lifetimes: specify how long data is valid
+    // - Box: allocate data on the heap, as simple as it gets
+    // - Rc: reference counting for shared ownership - multiple references to the same data
+    // - Arc: atomic reference counting for shared ownership across threads
+
+    // lifetimes - usually based on scope, but can be more complex
+    {
+        let lifetime = "lifetime";
+        println!("Lifetime: {}", lifetime);
+    }
+    //here: println!("Lifetime: {}", lifetime); -> out of scope!
+
+    // In functions:
+    // The annotation <'a> says: "This function has a generic lifetime 'a'".
+    // The signature fn longest<'a>(x: &'a str, y: &'a str) -> &'a str says:
+    // "The returned string slice will live at least as long as the SHORTEST of the input slices x and y."
+    fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+        if x.len() > y.len() { x } else { y }
+    }
+
+    let string1 = String::from("long string is long");
+    let result;
+    {
+        let string2 = String::from("xyz");
+        // `result` is valid only as long as both `string1` and `string2` are.
+        result = longest(string1.as_str(), string2.as_str());
+        println!("The longest string is: {}", result);
+    }
+    // Here, `string2` is out of scope. The compiler would prevent us
+    // from using `result` here because its lifetime has ended.
+    // println!("{}", result); // <-- This would be a compile-time error!
+
+    // box
+    {
+        let box_data = Box::new("box"); //this is stored on the heap
+        println!("Box: {}", box_data);
+    }
+    //here: println!("Box: {}", box_data); -> out of scope as well!
+
+    {
+        // A classic example: a recursive list.
+        // Without `Box`, this type would have an infinite size.
+        // `Box<List>` breaks the cycle because a box is a pointer, which has a known, fixed size.
+        #[derive(Debug)]
+        #[allow(dead_code)]
+        enum List {
+            Node(i32, Box<List>),
+            Nil,
+        }
+
+        // Create a list on the heap: 5 -> 10 -> Nil
+        let list = List::Node(5, Box::new(List::Node(10, Box::new(List::Nil))));
+        // The `list` variable is on the stack, but the node data (5, 10) is on the heap.
+        // When `list` goes out of scope, all heap data is cleaned up recursively.
+        println!("List: {:?}", list);
+    }
+
+    // rc
+    // use std::rc::Rc;
+    let rc_data = Rc::new("rc");
+    println!("Rc: {}", rc_data);
+
+    {
+        // `data` is allocated on the heap once.
+        let data = Rc::new(String::from("shared data"));
+
+        println!("Initial strong count: {}", Rc::strong_count(&data)); // -> 1
+
+        // `owner1` and `owner2` now both "own" the data.
+        // `Rc::clone` is cheap—it just increases the reference count.
+        let _owner1 = Rc::clone(&data);
+        println!("Count after first clone: {}", Rc::strong_count(&data)); // -> 2
+
+        {
+            let _owner2 = Rc::clone(&data);
+            println!("Count inside inner scope: {}", Rc::strong_count(&data)); // -> 3
+        } // `owner2` goes out of scope, count decreases.
+
+        println!("Count after inner scope: {}", Rc::strong_count(&data)); // -> 2
+    }
+
+    // arc
+    let arc_data = Arc::new("arc");
+    println!("Arc: {}", arc_data);
+
+    {
+        use std::sync::Arc;
+        use std::thread;
+
+        // The data is allocated on the heap once.
+        let data = Arc::new(String::from("thread-safe shared data"));
+
+        // We'll spawn multiple threads, and each will get its own `Arc` pointer.
+        let mut handles = vec![];
+        for i in 0..3 {
+            // `Arc::clone` is cheap, just like `Rc::clone`.
+            let data_clone = Arc::clone(&data);
+
+            // The `move` keyword transfers ownership of `data_clone` into the thread.
+            let handle = thread::spawn(move || {
+                println!("Thread {} sees: '{}'", i, data_clone);
+            });
+            handles.push(handle);
+        }
+
+        // Wait for all threads to finish.
+        for handle in handles {
+            handle.join().unwrap();
+        }
+
+        println!("Final strong count: {}", Arc::strong_count(&data)); // -> 1
+    }
 }
