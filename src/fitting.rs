@@ -1,35 +1,27 @@
-use linfa::prelude::*;
-use linfa_linear::LinearRegression; //cargo add linfa-linear -> for linear fits
-use ndarray::{Array1, Array2};
 use polars::prelude::*;
 use plotters::prelude::*;
 use std::error::Error;
 
 pub fn fit_and_plot(df: &DataFrame) -> Result<(), Box<dyn Error>> {
     // Extract columns
-    let x = df.column("x")?.f64()?;
-    let y = df.column("y")?.f64()?;
+    let x_col = df.column("x")?.f64()?;
+    let y_col = df.column("y")?.f64()?;
 
-    // Prepare ndarray input
-    let features: Vec<f64> = x
-        .into_iter()
-        .filter_map(|opt| opt)
-        .collect();
-    let targets: Vec<f64> = y
-        .into_iter()
-        .filter_map(|opt| opt)
-        .collect();
+    let x: Vec<f64> = x_col.into_iter().filter_map(|opt| opt).collect();
+    let y: Vec<f64> = y_col.into_iter().filter_map(|opt| opt).collect();
 
-    let n = features.len();
-    let x_array = Array2::from_shape_vec((n, 1), features)?;
-    let y_array = Array1::from_vec(targets);
+    let n = x.len() as f64;
 
-    // Train model
-    let dataset = DatasetBase::new(x_array.view(), y_array.view());
-    let model = LinearRegression::default().fit(&dataset)?;
+    // Least-squares linear regression: y = m*x + b
+    let sum_x: f64 = x.iter().sum();
+    let sum_y: f64 = y.iter().sum();
+    let sum_xy: f64 = x.iter().zip(y.iter()).map(|(xi, yi)| xi * yi).sum();
+    let sum_x2: f64 = x.iter().map(|xi| xi * xi).sum();
 
-    // Predict
-    let y_pred = model.predict(&dataset);
+    let m = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x * sum_x);
+    let b = (sum_y - m * sum_x) / n;
+
+    let y_pred: Vec<f64> = x.iter().map(|xi| m * xi + b).collect();
 
     // Plot results
 
@@ -55,17 +47,12 @@ pub fn fit_and_plot(df: &DataFrame) -> Result<(), Box<dyn Error>> {
     .draw()?;
 
     // Draw original points
-    for (x, y) in x_array.column(0).iter().zip(y_array.iter()) {
-        chart.draw_series(std::iter::once(Circle::new((*x, *y), 4, RGBColor(137, 220, 235).filled())))?;
+    for (&xi, &yi) in x.iter().zip(y.iter()) {
+        chart.draw_series(std::iter::once(Circle::new((xi, yi), 4, RGBColor(137, 220, 235).filled())))?;
     }
 
     // Draw predicted line
-    let line: Vec<(f64, f64)> = x_array
-        .column(0)
-        .iter()
-        .zip(y_pred.iter())
-        .map(|(&x, &y)| (x, y))
-        .collect();
+    let line: Vec<(f64, f64)> = x.iter().zip(y_pred.iter()).map(|(&xi, &yi)| (xi, yi)).collect();
 
     chart.draw_series(LineSeries::new(line, RED.stroke_width(3)))?;
 

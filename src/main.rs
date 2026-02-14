@@ -3,7 +3,7 @@ use std::io::Result; //import the ability to handle results //import the file sy
 use std::rc::Rc; // to use reference counting
 
 use ndarray::Array2;
-use rand::Rng; //cargo add rand -> random numbers
+use rand::RngExt; //cargo add rand -> random numbers
 use rand_distr::{Distribution, Normal}; //cargo add rand_distr -> random distributions //cargo add ndarray@0.15 -> 2D arrays, also has 3D etc., linfa breaks with 0.16
 
 use rayon::join; //cargo add rayon -> divide and conquer algorithm approach

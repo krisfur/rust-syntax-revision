@@ -1,3 +1,8 @@
+// cargo add axum -> web framework
+// cargo add tokio --features full -> async runtime
+// cargo add reqwest -> for HTTP requests
+// cargo add serde --features derive -> deserialization
+// cargo add tower-http --features fs -> static file serving
 use axum::{
     Form, Router,
     response::Html,

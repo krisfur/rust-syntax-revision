@@ -1,29 +1,66 @@
 use polars::prelude::*; //cargo add polars --features lazy,ndarray -> for dataframes
-use linfa::prelude::*; //cargo add linfa -> for scientific operations
-use linfa_clustering::KMeans; //cargo add linfa-clustering -> for KMeans
-use ndarray::{Array1, Array2}; //cargo add ndarray@0.15 -> linfa breaks with 0.16
 use plotters::prelude::*; //cargo add plotters -> for plotting
 use std::error::Error;
 
-pub fn plot_dataframe(df: &DataFrame) -> Result<(), Box<dyn Error>> {
-    // Convert columns to flat Vec<f64>
-    let x = df.column("x")?.f64()?; //get data from x column
-    let y = df.column("y")?.f64()?; //get data from y colunn
+/// Manual k-means clustering. Returns cluster assignment for each point.
+fn kmeans(points: &[(f64, f64)], k: usize, max_iter: usize) -> Vec<usize> {
+    let n = points.len();
 
-    let flat: Vec<f64> = x.into_iter()
-        .zip(y)
-        .filter_map(|(ox, oy)| Some((ox?, oy?)))
-        .flat_map(|(x, y)| vec![x, y])
+    // Pick initial centroids from evenly spaced indices (deterministic)
+    let mut centroids: Vec<(f64, f64)> = (0..k)
+        .map(|i| points[i * n / k])
         .collect();
 
-    let n = flat.len() / 2;
-    let records: Array2<f64> = Array2::from_shape_vec((n, 2), flat)?;
-    let targets: Array1<usize> = Array1::zeros(n);
+    let mut assignments = vec![0usize; n];
 
-    let dataset = DatasetBase::new(records.view(), targets.view());
+    for _ in 0..max_iter {
+        let mut changed = false;
 
-    let model = KMeans::params(3).fit(&dataset)?;
-    let preds = model.predict(&dataset);
+        // Assign each point to nearest centroid
+        for (i, &(px, py)) in points.iter().enumerate() {
+            let nearest = centroids.iter().enumerate()
+                .min_by(|(_, (cx, cy)), (_, (cx2, cy2))| {
+                    let d1 = (px - cx).powi(2) + (py - cy).powi(2);
+                    let d2 = (px - cx2).powi(2) + (py - cy2).powi(2);
+                    d1.partial_cmp(&d2).unwrap()
+                })
+                .unwrap().0;
+            if assignments[i] != nearest {
+                assignments[i] = nearest;
+                changed = true;
+            }
+        }
+
+        if !changed {
+            break;
+        }
+
+        // Recompute centroids
+        for c in 0..k {
+            let (sum_x, sum_y, count) = points.iter().zip(assignments.iter())
+                .filter(|(_, a)| **a == c)
+                .fold((0.0, 0.0, 0usize), |(sx, sy, cnt), (&(px, py), _)| {
+                    (sx + px, sy + py, cnt + 1)
+                });
+            if count > 0 {
+                centroids[c] = (sum_x / count as f64, sum_y / count as f64);
+            }
+        }
+    }
+
+    assignments
+}
+
+pub fn plot_dataframe(df: &DataFrame) -> Result<(), Box<dyn Error>> {
+    let x_col = df.column("x")?.f64()?;
+    let y_col = df.column("y")?.f64()?;
+
+    let points: Vec<(f64, f64)> = x_col.into_iter()
+        .zip(y_col)
+        .filter_map(|(ox, oy)| Some((ox?, oy?)))
+        .collect();
+
+    let assignments = kmeans(&points, 3, 100);
 
     // Plotting
 
@@ -52,13 +89,10 @@ pub fn plot_dataframe(df: &DataFrame) -> Result<(), Box<dyn Error>> {
         .configure_mesh()
         .axis_style(&text)
         .light_line_style(&grid)
-        .label_style(("sans-serif", 20).into_font().color(&text)) //set axis font size here
+        .label_style(("sans-serif", 20).into_font().color(&text))
         .draw()?;
-    
-    let xvals = df.column("x")?.f64()?.into_no_null_iter();
-    let yvals = df.column("y")?.f64()?.into_no_null_iter();
 
-    for ((x, y), &cluster) in xvals.zip(yvals).zip(preds.iter()) {
+    for (&(x, y), &cluster) in points.iter().zip(assignments.iter()) {
         chart.draw_series(std::iter::once(Circle::new((x, y), 5, cluster_colours[cluster].filled())))?;
     }
 

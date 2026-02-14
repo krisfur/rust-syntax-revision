@@ -1,5 +1,8 @@
-use reqwest; //cargo add reqwest -> for requests
-use futures::future::join_all; //cargo add futures -> various tools for futures
+// cargo add reqwest -> for HTTP requests
+// cargo add tokio --features full -> async runtime
+// cargo add futures -> various tools for futures
+use reqwest;
+use futures::future::join_all;
 
 async fn make_request(i: usize) {
     let url = "https://httpbin.org/get";
