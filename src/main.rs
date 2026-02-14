@@ -1,17 +1,17 @@
-use std::fs;
-use std::io::Result; //import the ability to handle results //import the file system module
+use std::fs; //import the file system module
+use std::io::Result; //import the ability to handle results
 use std::rc::Rc; // to use reference counting
 
-use ndarray::Array2;
+use ndarray::Array2; //cargo add ndarray - to use 2d arrays, 3d arrays etc.
 use rand::RngExt; //cargo add rand -> random numbers
-use rand_distr::{Distribution, Normal}; //cargo add rand_distr -> random distributions //cargo add ndarray@0.15 -> 2D arrays, also has 3D etc., linfa breaks with 0.16
+use rand_distr::{Distribution, Normal}; //cargo add rand_distr -> random distributions 
 
-use rayon::join; //cargo add rayon -> divide and conquer algorithm approach
-use rayon::prelude::*; //cargo add rayon -> parallelism
+use rayon::join; //cargo add rayon -> divide and conquer parallelism algorithm approach
+use rayon::prelude::*; //cargo add rayon -> easy parallelism
 use std::thread; //for manual threading of full functions
 use std::time::Duration; //so we can sleep set amount of time
 
-mod fitting;
+mod fitting; //import a side file as a module
 mod plotting; //import a side file as a module
 use polars::prelude::*; //cargo add polars --feratures lazy,ndarray -> for dataframes
 
@@ -26,11 +26,11 @@ fn main() {
     let mut x: i32 = 123; //define: mutable int32, can also infer like let x = 3, but then you miss some specific expressive functions like .abs()
     x = x * -1; //swap sign
     let _unused_variable = 5; // _ means the variable doesn't need to be used so compiler won't warn you
-    println!("{}", x);
+    println!("{x}"); //string interpolation works EXCEPT you cannot do operations, just values
     let sign = if x < 0 { -1 } else { 1 }; //find sign
     let xstr = x.abs().to_string(); //convert to string ignoring the sign
     let srev = xstr.chars().rev().collect::<String>(); //reverse the string
-    println!("{}", srev);
+    println!("{}", srev); //can also provide interpolation values like this
     let irev = match srev.parse::<i32>() {
         //save new variable irev with either the string parsed back to int or 0 if it fails
         Ok(num) => num * sign, //reintroduce the sign
@@ -68,6 +68,7 @@ fn main() {
         Ok(content)
     }
 
+    // call the function without storing the output in a variable
     match load("example.txt") {
         //attempts to load a file named "example.txt"
         Ok(content) => println!("File content: {}", content), //if successful, prints the content of the file
@@ -256,7 +257,7 @@ fn main() {
 
     println!("Identity matrix:\n{}", a);
 
-    // Vector - array of mutable length
+    // Vector - array of mutable length - think C++ <vector>
 
     let mut v: Vec<i32> = Vec::new(); // empty vector of i32
 
